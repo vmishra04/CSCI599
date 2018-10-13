@@ -73,7 +73,7 @@ df = pd.DataFrame()
 
 new_id = []
 for vid_id in vid_ids:
-    print(vid_id)
+    print(vid_id) 
     new_id.append(getVideoID(vid_id))
     
 
