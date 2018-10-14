@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+CapDownload#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct 11 20:10:44 2018
@@ -16,6 +16,9 @@ import numpy as np
 import pandas as pd
 from IPython.display import YouTubeVideo
 
+from yt_api import Description
+#from cap import CapDownload
+
 
 directory = '/Users/vivekmishra/Desktop/USC/599-DSS/project/video/'
 vid_ids = []
@@ -25,15 +28,15 @@ mean_audio = []
 
 for filename in os.listdir(directory):
     if filename.endswith(".tfrecord"):
-
-        video_lvl_record = directory+'/'+filename
-        for example in tf.python_io.tf_record_iterator(video_lvl_record):
-            tf_example = tf.train.Example.FromString(example)
+        if filename.startswith("train"):
+            video_lvl_record = directory+'/'+filename
+            for example in tf.python_io.tf_record_iterator(video_lvl_record):
+                tf_example = tf.train.Example.FromString(example)
         
-            vid_ids.append(tf_example.features.feature['id'].bytes_list.value[0].decode(encoding='UTF-8'))
-            labels.append(tf_example.features.feature['labels'].int64_list.value)
-            mean_rgb.append(tf_example.features.feature['mean_rgb'].float_list.value)
-            mean_audio.append(tf_example.features.feature['mean_audio'].float_list.value)
+                vid_ids.append(tf_example.features.feature['id'].bytes_list.value[0].decode(encoding='UTF-8'))
+                labels.append(tf_example.features.feature['labels'].int64_list.value)
+                mean_rgb.append(tf_example.features.feature['mean_rgb'].float_list.value)
+                mean_audio.append(tf_example.features.feature['mean_audio'].float_list.value)
     
     
 
@@ -71,11 +74,82 @@ YouTubeVideo(play_one_vid(video_lvl_record, 0))
 
 df = pd.DataFrame()
 
+
+#Get Video_id for each video
 new_id = []
+count = 1
 for vid_id in vid_ids:
-    print(vid_id) 
+    print(count) 
     new_id.append(getVideoID(vid_id))
+    count = count+1
     
+#Get Desc,Title, Tags, Views
+description = Description()
+
+desc_data = []
+title = []
+caption = []
+views = []
+likes = []
+dislike = []
+favorite = []
+comment = []
+count = 1
+desc_id = []
+tags = []
+for vid_id in new_id:
+    #client = description.get_authenticated_service()
+    print(count)
+    data = description.videos_list_by_id(client,part='snippet,contentDetails,statistics',id=vid_id)
+    if 'items' in data.keys():
+        if len(data['items']) > 0:
+            desc_id.append(vid_id)
+            desc_data.append(data['items'][0]['snippet']['description'])  
+            title.append(data['items'][0]['snippet']['title'])
+            caption.append(data['items'][0]['contentDetails']['caption'])
+            
+            if 'tags' in data['items'][0]['snippet'].keys():
+                tags.append(data['items'][0]['snippet']['tags'])
+            else:
+                tags.append(np.nan)
+            
+            if 'viewCount' in data['items'][0]['statistics'].keys():
+                views.append(int(data['items'][0]['statistics']['viewCount']))
+            else:
+                likes.append(np.nan)
+                
+            if 'likeCount' in data['items'][0]['statistics'].keys():
+                likes.append(int(data['items'][0]['statistics']['likeCount']))
+            else:
+                likes.append(np.nan)
+                
+            if 'dislikeCount' in data['items'][0]['statistics'].keys():   
+                dislike.append(int(data['items'][0]['statistics']['dislikeCount']))
+            else:
+                dislike.append(np.nan)
+                
+            if 'favoriteCount'  in  data['items'][0]['statistics'].keys():  
+                favorite.append(int(data['items'][0]['statistics']['favoriteCount']))
+            else:
+                favorite.append(np.nan)
+                
+            if 'commentCount' in  data['items'][0]['statistics'].keys():  
+                comment.append(int(data['items'][0]['statistics']['commentCount']))
+            else:
+                comment.append(np.nan)
+                
+            count = count+1
+    
+
+
+#Get List of Captions + download
+
+
+#Attach Labels    
+
+
+
+
 
 
 
