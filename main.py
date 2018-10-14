@@ -18,6 +18,7 @@ from IPython.display import YouTubeVideo
 
 from yt_api import Description
 #from cap import CapDownload
+from alternateCap import alternateCap
 
 
 directory = '/Users/vivekmishra/Desktop/USC/599-DSS/project/video/'
@@ -88,7 +89,7 @@ df['id'] = new_id
 df.to_pickle("df.pkl")
 
 #
-df = pd.read_pickle("df.pkl")
+df = pd.read_pickle("df_new.pkl")
 new_id = df['id']
     
 #Get Desc,Title, Tags, Views
@@ -156,28 +157,29 @@ for vid_id in new_id:
     
 
 
-df['id'] = desc_id[0:40708]
-df['title'] = title[0:40708]
-df['desc'] = desc_data[0:40708]
-df['views'] = views[0:40708]
-df['likes'] = likes[0:40708]
-df['dislike'] = dislike[0:40708]
-df['favorite'] = favorite[0:40708]
-df['comment'] = comment[0:40708]
-df['tags'] = tags[0:40708]
-df['caption'] = caption[0:40708]
+df['id'] = desc_id
+df['title'] = title
+df['desc'] = desc_data
+df['views'] = views
+df['likes'] = likes
+df['dislike'] = dislike
+df['favorite'] = favorite
+df['comment'] = comment
+df['tags'] = tags
+df['caption'] = caption
+df['labels'] = label_tag
 
 
-df.to_pickle("df_1.pkl")
-df.to_csv("df.csv")
+df.to_pickle("df_new.pkl")
+df.to_csv("df_new.csv")
 
 
 
 #Get List of Captions + download
 
-
-#Attach Labels    
-
+cap = alternateCap() 
+head['subtitle'] = head.apply(lambda row: cap.downloadCap(row['id']) if row['caption'] == 'true' 
+                                else np.nan,axis=1)
 
 
 

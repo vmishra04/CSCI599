@@ -19,9 +19,9 @@ from apiclient.discovery import build_from_document
 from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import  run_flow
 
-
+import argparse
 
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
@@ -43,7 +43,7 @@ from oauth2client.tools import argparser, run_flow
 
 class CapDownload:
 
-    def get_authenticated_service(self,args):
+    def get_authenticated_service(args):
         
         CLIENT_SECRETS_FILE = "client_secret.json"
 
@@ -88,7 +88,7 @@ class CapDownload:
     
     
     # Call the API's captions.list method to list the existing caption tracks.
-    def list_captions(self,youtube, video_id):
+    def list_captions(youtube, video_id):
       results = youtube.captions().list(
         part="snippet",
         videoId=video_id
@@ -104,7 +104,7 @@ class CapDownload:
     
     
     # Call the API's captions.download method to download an existing caption track.
-    def download_caption(self,youtube, caption_id, tfmt):
+    def download_caption(youtube, caption_id, tfmt):
       subtitle = youtube.captions().download(
         id=caption_id,
         tfmt=tfmt
@@ -114,63 +114,54 @@ class CapDownload:
     
       print("First line of caption track: %s" % (subtitle))
     
-    
+    def set_arguement(self,id):    
 
-    import argparse
-    argparser = argparse.ArgumentParser()
-    # The "videoid" option specifies the YouTube video ID that uniquely
-      # identifies the video for which the caption track will be uploaded.
-    argparser.add_argument("--videoid",help="Required; ID for video for which the caption track will be uploaded.",default="jBN2_YuTclU")
-      # The "name" option specifies the name of the caption trackto be used.
-    argparser.add_argument("--name", help="Caption track name", default="YouTube for Developers")
-      # The "file" option specifies the binary file to be uploaded as a caption track.
-    argparser.add_argument("--file", help="Captions track file to upload")
-      # The "language" option specifies the language of the caption track to be uploaded.
-    argparser.add_argument("--language", help="Caption track language", default="en")
-      # The "captionid" option specifies the ID of the caption track to be processed.
-    argparser.add_argument("--captionid", help="Required; ID of the caption track to be processed",default="8S2GjnNfitU5HHoLyTeLxq_W1dP29YRFC8E8vFBUtws=")
-      # The "action" option specifies the action to be processed.
-    argparser.add_argument("--action", help="Action", default="download")
-    
-    
-    args = argparser.parse_args()
-    
-    if (args.action in ('upload', 'list', 'all')):
-        if not args.videoid:
-          exit("Please specify videoid using the --videoid= parameter.")
-    
-    if (args.action in ('update', 'download', 'delete')):
-        if not args.captionid:
-            exit("Please specify captionid using the --captionid= parameter.")
-    
-    if (args.action in ('upload', 'all')):
-        if not args.file:
-            exit("Please specify a caption track file using the --file= parameter.")
-        if not os.path.exists(args.file):
-            exit("Please specify a valid file using the --file= parameter.")
-    
-    youtube = get_authenticated_service(args)
-  
-    if args.action == 'upload':
-      upload_caption(youtube, args.videoid, args.language, args.name, args.file)
-    elif args.action == 'list':
-      list_captions(youtube, args.videoid)
-    elif args.action == 'update':
-      update_caption(youtube, args.captionid, args.file);
-    elif args.action == 'download':
-      text = download_caption(youtube, args.captionid, 'srt')
-    elif args.action == 'delete':
-      delete_caption(youtube, args.captionid);
-    else:
-      # All the available methods are used in sequence just for the sake of an example.
-      upload_caption(youtube, args.videoid, args.language, args.name, args.file)
-      captions = list_captions(youtube, args.videoid)
-    
-      if captions:
-        first_caption_id = captions[0]['id'];
-        update_caption(youtube, first_caption_id, None);
-        download_caption(youtube, first_caption_id, 'srt')
-        delete_caption(youtube, first_caption_id);
+        
+        
+        argparser = argparse.ArgumentParser()
+        # The "videoid" option specifies the YouTube video ID that uniquely
+          # identifies the video for which the caption track will be uploaded.
+        argparser.add_argument("--videoid",help="Required; ID for video for which the caption track will be uploaded.",default=id)
+          # The "name" option specifies the name of the caption trackto be used.
+        argparser.add_argument("--name", help="Caption track name", default="YouTube for Developers")
+          # The "file" option specifies the binary file to be uploaded as a caption track.
+        argparser.add_argument("--file", help="Captions track file to upload")
+          # The "language" option specifies the language of the caption track to be uploaded.
+        argparser.add_argument("--language", help="Caption track language", default="en")
+          # The "captionid" option specifies the ID of the caption track to be processed.
+        argparser.add_argument("--captionid", help="Required; ID of the caption track to be processed",default="")
+          # The "action" option specifies the action to be processed.
+        argparser.add_argument("--action", help="Action", default="list")
+        
+        
+        args = argparser.parse_args()
+        
+        youtube = get_authenticated_service(args)
+        
+        list_data = list_captions(youtube, args.videoid)
+        
+        if list_data:
+            sub_id = list_data[1]['id']
+            
+            #Now make download call
+            argparser = argparse.ArgumentParser()
+            # The "videoid" option specifies the YouTube video ID that uniquely
+            # identifies the video for which the caption track will be uploaded.
+            argparser.add_argument("--videoid",help="Required; ID for video for which the caption track will be uploaded.",default=id)
+            # The "name" option specifies the name of the caption trackto be used.
+            argparser.add_argument("--name", help="Caption track name", default="YouTube for Developers")
+            # The "file" option specifies the binary file to be uploaded as a caption track.
+            argparser.add_argument("--file", help="Captions track file to upload")
+            # The "language" option specifies the language of the caption track to be uploaded.
+            argparser.add_argument("--language", help="Caption track language", default="en")
+            # The "captionid" option specifies the ID of the caption track to be processed.
+            argparser.add_argument("--captionid", help="Required; ID of the caption track to be processed",default=sub_id)
+            # The "action" option specifies the action to be processed.
+            argparser.add_argument("--action", help="Action", default="download")
+            
+            args = argparser.parse_args()
+            subtitles = download_caption(youtube, args.captionid, 'sbv')
+            
     
     
     
