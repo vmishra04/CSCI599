@@ -75,6 +75,7 @@ YouTubeVideo(play_one_vid(video_lvl_record, 0))
 df = pd.DataFrame()
 
 
+
 #Get Video_id for each video
 new_id = []
 count = 1
@@ -82,6 +83,9 @@ for vid_id in vid_ids:
     print(count) 
     new_id.append(getVideoID(vid_id))
     count = count+1
+       
+df['id'] = new_id
+df.to_pickle("df.pkl")
     
 #Get Desc,Title, Tags, Views
 description = Description()
