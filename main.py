@@ -86,8 +86,14 @@ for vid_id in vid_ids:
        
 df['id'] = new_id
 df.to_pickle("df.pkl")
+
+#
+df = pd.read_pickle("df.pkl")
+new_id = df['id']
     
 #Get Desc,Title, Tags, Views
+#Description of label
+text = pd.read_csv('https://research.google.com/youtube8m/csv/2/vocabulary.csv')
 description = Description()
 
 desc_data = []
@@ -101,6 +107,8 @@ comment = []
 count = 1
 desc_id = []
 tags = []
+label_tag = []
+index = 0
 for vid_id in new_id:
     #client = description.get_authenticated_service()
     print(count)
@@ -108,6 +116,7 @@ for vid_id in new_id:
     if 'items' in data.keys():
         if len(data['items']) > 0:
             desc_id.append(vid_id)
+            label_tag.append([text['Name'][id] for id in labels[index]])
             desc_data.append(data['items'][0]['snippet']['description'])  
             title.append(data['items'][0]['snippet']['title'])
             caption.append(data['items'][0]['contentDetails']['caption'])
@@ -120,7 +129,7 @@ for vid_id in new_id:
             if 'viewCount' in data['items'][0]['statistics'].keys():
                 views.append(int(data['items'][0]['statistics']['viewCount']))
             else:
-                likes.append(np.nan)
+                views.append(np.nan)
                 
             if 'likeCount' in data['items'][0]['statistics'].keys():
                 likes.append(int(data['items'][0]['statistics']['likeCount']))
@@ -143,7 +152,25 @@ for vid_id in new_id:
                 comment.append(np.nan)
                 
             count = count+1
+    index+=1
     
+
+
+df['id'] = desc_id[0:40708]
+df['title'] = title[0:40708]
+df['desc'] = desc_data[0:40708]
+df['views'] = views[0:40708]
+df['likes'] = likes[0:40708]
+df['dislike'] = dislike[0:40708]
+df['favorite'] = favorite[0:40708]
+df['comment'] = comment[0:40708]
+df['tags'] = tags[0:40708]
+df['caption'] = caption[0:40708]
+
+
+df.to_pickle("df_1.pkl")
+df.to_csv("df.csv")
+
 
 
 #Get List of Captions + download
@@ -158,8 +185,7 @@ for vid_id in new_id:
 
 
 
-#Description of label
-text = pd.read_csv('https://research.google.com/youtube8m/csv/2/vocabulary.csv')
+
 
 
 
