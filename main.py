@@ -100,7 +100,11 @@ df['id'] = new_id
 df.to_pickle("df.pkl")
 
 #
+<<<<<<< HEAD
 df = pd.read_pickle("news.pkl")
+=======
+df = pd.read_pickle("df_new.pkl")
+>>>>>>> 5723a44c9754a697cb591c5cb11d3debef07dce7
 new_id = df['id']
     
 #Get Desc,Title, Tags, Views
@@ -199,10 +203,13 @@ df.to_csv("df_new.csv")
 cap = alternateCap() 
 head['subtitle'] = head.apply(lambda row: cap.downloadCap(row['id']) if row['caption'] == 'true' 
                                 else np.nan,axis=1)
+<<<<<<< HEAD
 
 
 
 news = pd.DataFrame()
+=======
+>>>>>>> 5723a44c9754a697cb591c5cb11d3debef07dce7
 
 news['id'] = desc_id
 news['title'] = title
