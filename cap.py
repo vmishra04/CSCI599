@@ -141,7 +141,7 @@ class CapDownload:
         list_data = list_captions(youtube, args.videoid)
         
         if list_data:
-            sub_id = list_data[1]['id']
+            sub_id = list_data[0]['id']
             
             #Now make download call
             argparser = argparse.ArgumentParser()

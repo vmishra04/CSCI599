@@ -198,6 +198,8 @@ df.to_csv("df_new.csv")
 
 
 
+------------
+
 #Get List of Captions + download
 
 cap = alternateCap() 
@@ -229,7 +231,12 @@ news.to_csv("news_politics.csv")
 
 
 
+df = pd.read_pickle('news.pkl')
+head = df.head(100)
 
+cap = alternateCap() 
+df['subtitle'] = df.apply(lambda row: cap.downloadCap(row['id']) if row['caption'] == 'true' 
+                                else np.nan,axis=1)
 
 
 
