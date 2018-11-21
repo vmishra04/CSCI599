@@ -19,6 +19,9 @@ from IPython.display import YouTubeVideo
 from yt_api import Description
 #from cap import CapDownload
 from alternateCap import alternateCap
+from LDA import LDA
+from LDA_new import LDA_new
+from senti import senti
 
 
 directory = '/Users/vivekmishra/Desktop/USC/599-DSS/project/video/'
@@ -214,7 +217,7 @@ news = pd.DataFrame()
 >>>>>>> 5723a44c9754a697cb591c5cb11d3debef07dce7
 
 news['id'] = desc_id
-news['title'] = title
+?/?.//news['title'] = title
 news['desc'] = desc_data
 news['views'] = views
 news['likes'] = likes
@@ -232,14 +235,52 @@ news.to_csv("news_politics.csv")
 
 
 df = pd.read_pickle('news.pkl')
-head = df.head(100)
+head = df.head(1000)
 
 cap = alternateCap() 
 df['subtitle'] = df.apply(lambda row: cap.downloadCap(row['id']) if row['caption'] == 'true' 
                                 else np.nan,axis=1)
 
+head = df.head(1000)
+df.to_csv('news_politics_caption.csv')
+df.to_pickle("df_latest.pkl")
 
+df = pd.read_pickle('df_latest.pkl')
 
+#----------------------------------------
 
+#Subset by availability of caption
+df = df[df['subtitle'].isnull() == False]
+df = df[df['subtitle'].str.len() > 0]
 
+#LDA
+lda = LDA_new()
+topic1_list = []
+count = 0
+for i,j in df.iterrows():
+    print(count)
+    topic1_list.append(lda.main((str(j["subtitle"])),0))
+    count += 1
 
+df['topic1'] = topic1_list
+
+lda = LDA_new()
+topic2_list = []
+count = 0
+for i,j in df.iterrows():
+    print(count)
+    topic2_list.append(lda.main((str(j["subtitle"])),1))
+    count += 1
+    
+df['topic2'] = topic2_list
+
+df.to_pickle("df_lda.pkl")
+
+#Sentiment analysis
+
+senti = senti()
+df['senti_title'] = df['title'].apply(lambda x : senti.main(x))
+df['senti_desc'] = df['desc'].apply(lambda x : senti.main(x))
+df['senti_subt'] = df['subtitle'].apply(lambda x: senti.main(x))
+
+df.to_pickle("df_senti.pkl")
