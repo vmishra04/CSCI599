@@ -32,6 +32,7 @@ class recommendation:
         feature_df = feature_df.set_index('id')
         slice_df = feature_df[feature_df['clusters'] == cluster_no]
         #Here we do all feature engineering again for this cluster
+        #If using title
         title_temp = list(df[df['clusters'] == cluster_no]['title'])
 
         counter = 0

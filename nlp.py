@@ -190,6 +190,45 @@ for item in subt:
     subt[counter] = ' '.join(item)
     counter += 1
        
+#Tags
+tags = list(df['tags'])
+counter = 0
+for item in tags:
+    if isinstance(item,list):
+       tags[counter] = ' '.join(item) 
+    else:    
+        item = "No tags"
+        tags[counter] = item
+    counter += 1 
+
+counter = 0
+for sent in tags:
+    tags[counter]=strip_links(sent)
+    counter += 1
+    
+counter = 0
+for sent in tags:
+    tags[counter]=strip_hashtag(sent)
+    counter += 1
+
+counter = 0
+for sent in tags:
+    tags[counter]=remove_special_characters(sent, 
+                          remove_digits=True)
+    counter += 1
+    
+counter = 0
+for sent in tags:
+    tags[counter]=remove_stopwords(sent)
+    counter += 1
+    
+counter = 0
+for sent in tags:
+    tags[counter]=lemmatize_text(sent)
+    counter += 1
+
+    
+    
 ####TF-IDF    
     
 vectorizer = TfidfVectorizer(strip_accents='unicode')
@@ -199,7 +238,7 @@ word_mat = word_mat.toarray()
 word_mat = pd.DataFrame(word_mat)
 
 
-#Feature Selection
+#Feature Selection - Experimentation
 ## For time being only use title matrix
 vectorizer = TfidfVectorizer(strip_accents='unicode')
 title_mat = vectorizer.fit_transform(title)
@@ -220,17 +259,20 @@ feature_df = pd.DataFrame(title_mat)
 
 #Conversion of dataframe to spare matrix
 
-no_of_cluster = 5
+no_of_cluster = 7
 
 dense_matrix = np.array(feature_df.as_matrix(columns = None), dtype=bool).astype(np.int)
 sparse_matrix = scipy.sparse.csr_matrix(dense_matrix)
 kmeans = KMeans(n_clusters=no_of_cluster, random_state=0)
 kmeans.fit(sparse_matrix)
 
+
+#Evaluation of clustering
+
 print("Top terms per cluster:")
 order_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
 terms = vectorizer.get_feature_names()
-for i in range(5):
+for i in range(no_of_cluster):
     print("Cluster %d:" % i),
     for ind in order_centroids[i, :10]:
         print(' %s' % terms[ind]),
@@ -248,15 +290,28 @@ el = Counter(clusters)
 from sklearn.metrics.pairwise import cosine_similarity
 dist = cosine_similarity(feature_mat)
 
-#Silhouette  score
+
+#Silhouette  score - Best if closer to 1
 from sklearn.metrics import silhouette_score
-silhouette_avg = silhouette_score(dist, kmeans.labels_)
+silhouette_avg = silhouette_score(feature_mat, kmeans.labels_)
+print("Silhouette score " + str(silhouette_avg))
+
+#Calinski-Harabaz Index¶ -  Higher the score better
+from sklearn.metrics import calinski_harabaz_score
+print("Calinski score : " + str(calinski_harabaz_score(feature_mat,clusters)))
+
+#Davies-Bouldin Index - Closer to zero better
+from sklearn.metrics import davies_bouldin_score
+print("Davies-Bouldin score : " + str(davies_bouldin_score(feature_mat,clusters)))
+
 
 #Recommendation
 #Testing with video id
 df = df.reset_index()
 df = df.drop(['index'],axis=1)
-vid = 'iUdgD8kYU-E'
+vid = 'iUdgD8kYU-E' #Eg 1 Supreme court justice
+vid = 'tG3wqbEmb7s' #eg 2 Iran nuclear deal
+vid = 'Oms5r6_yJB8' #eg 3 Robert Mueller
 feature_df['id'] = df['id']
 feature_df['clusters'] = clusters
 df['clusters'] = clusters
