@@ -60,10 +60,48 @@ class recommendation:
         for sent in title_temp:
             title_temp[counter]=self.lemmatize_text(sent)
             counter += 1
+        """  
+        tags_temp = list(df[df['clusters'] == cluster_no]['tags'])
+        counter = 0
+        for item in tags_temp:
+            if isinstance(item,list):
+               tags_temp[counter] = ' '.join(item) 
+            else:    
+                item = "No tags"
+                tags_temp[counter] = item
+            counter += 1 
+        
+        counter = 0
+        for sent in tags_temp:
+            tags_temp[counter]=self.strip_links(sent)
+            counter += 1
             
+        counter = 0
+        for sent in tags_temp:
+            tags_temp[counter]=self.strip_hashtag(sent)
+            counter += 1
+        
+        counter = 0
+        for sent in tags_temp:
+            tags_temp[counter]=self.remove_special_characters(sent, 
+                                  remove_digits=True)
+            counter += 1
+            
+        counter = 0
+        for sent in tags_temp:
+            tags_temp[counter]=self.remove_stopwords(sent)
+            counter += 1
+            
+        counter = 0
+        for sent in tags_temp:
+            tags_temp[counter]=self.lemmatize_text(sent)
+            counter += 1
+        """    
         vectorizer = TfidfVectorizer(strip_accents='unicode')
         title_temp_mat = vectorizer.fit_transform(title_temp)
         title_temp_mat = title_temp_mat.toarray()
+        
+        
         
         title_temp_mat = pd.DataFrame(title_temp_mat)
         #Cosine similarity
